@@ -1,0 +1,270 @@
+{% extends "_base.html" %}
+
+{% block title %}Connect Cloud Provider - Cloud Sync{% endblock %}
+
+{% block styles %}
+<style>
+    .provider-card {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        background: #fff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .provider-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        border-color: var(--bs-primary);
+    }
+    
+    .provider-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: white;
+        margin-bottom: 1rem;
+    }
+    
+    .google-drive-icon {
+        background: linear-gradient(135deg, #4285f4, #34a853);
+    }
+    
+    .onedrive-icon {
+        background: linear-gradient(135deg, #0078d4, #005a9e);
+    }
+    
+    .connect-btn {
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        border: none;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .connect-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .google-btn {
+        background: linear-gradient(135deg, #4285f4, #34a853);
+        color: white;
+    }
+    
+    .onedrive-btn {
+        background: linear-gradient(135deg, #0078d4, #005a9e);
+        color: white;
+    }
+    
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+    }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin: 0 auto 1rem;
+    }
+    
+    .step-number {
+        width: 40px;
+        height: 40px;
+        background: var(--bs-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        margin-right: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-4">Connect Your Cloud Storage</h1>
+                <p class="lead mb-4">Sync your files seamlessly across multiple cloud platforms. Choose your preferred cloud storage provider to get started.</p>
+                <div class="d-flex justify-content-center gap-4 mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        <span>Secure</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-sync-alt me-2"></i>
+                        <span>Real-time Sync</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-cloud me-2"></i>
+                        <span>Multi-platform</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Connected Accounts Section (if any) -->
+    {% if connected_providers %}
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0">Your Connected Accounts</h2>
+                <a href="{% url 'cloud_provider:dashboard' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                </a>
+            </div>
+            
+            <div class="row g-3">
+                {% for provider in connected_providers %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-success" style="border-radius: 12px;">
+                        <div class="card-body text-center p-3">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                {% if provider.provider_name == 'google_drive' %}
+                                    <i class="fab fa-google-drive text-primary me-2" style="font-size: 1.5rem;"></i>
+                                    <span class="fw-bold">Google Drive</span>
+                                {% else %}
+                                    <i class="fab fa-microsoft text-info me-2" style="font-size: 1.5rem;"></i>
+                                    <span class="fw-bold">OneDrive</span>
+                                {% endif %}
+                            </div>
+                            <p class="text-muted mb-2 small">{{ provider.email|default:"No email" }}</p>
+                            <span class="badge {% if provider.is_token_valid %}bg-success{% else %}bg-warning{% endif %} small">
+                                {% if provider.is_token_valid %}Connected{% else %}Token Expired{% endif %}
+                            </span>
+                            <div class="mt-2">
+                                <small class="text-muted">Added {{ provider.created_at|timesince }} ago</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="alert alert-info mt-4" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Note:</strong> You can connect multiple accounts from the same provider. Each account will be managed separately.
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Provider Selection -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-10">
+            <h2 class="text-center mb-5 fw-bold">Choose Your Cloud Provider</h2>
+            <div class="row g-4">
+                <!-- Google Drive Card -->
+                <div class="col-md-6">
+                    <div class="card provider-card h-100 text-center p-4">
+                        <div class="card-body">
+                            <div class="provider-icon google-drive-icon">
+                                <i class="fab fa-google-drive"></i>
+                            </div>
+                            <h4 class="card-title fw-bold mb-3">Google Drive</h4>
+                            <p class="card-text text-muted mb-4">
+                                Connect your Google Drive account to sync files, documents, and folders across all your devices.
+                            </p>
+                            <ul class="list-unstyled text-start mb-4">
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 15GB free storage</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Real-time collaboration</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Google Workspace integration</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Advanced sharing options</li>
+                            </ul>
+
+                                <a class="btn connect-btn google-btn w-100" href="{% url 'cloud_provider:connect_google_drive' %}">
+                                    <i class="fab fa-google me-2"></i>Connect Google Drive
+                                </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- OneDrive Card -->
+                <div class="col-md-6">
+                    <div class="card provider-card h-100 text-center p-4">
+                        <div class="card-body">
+                            <div class="provider-icon onedrive-icon">
+                                <i class="fab fa-microsoft"></i>
+                            </div>
+                            <h4 class="card-title fw-bold mb-3">OneDrive</h4>
+                            <p class="card-text text-muted mb-4">
+                                Connect your Microsoft OneDrive account to access your files from anywhere and collaborate with others.
+                            </p>
+                            <ul class="list-unstyled text-start mb-4">
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 5GB free storage</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Office 365 integration</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Version history</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Advanced security features</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+<!-- You can replace the above with a CDN link if you don't have a FontAwesome kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+<script>
+    // Add some interactive effects
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add hover effects to cards
+        const cards = document.querySelectorAll('.provider-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // Add loading state to buttons
+        const connectButtons = document.querySelectorAll('.connect-btn');
+        connectButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Connecting...';
+                this.disabled = true;
+                
+                // Re-enable button after 10 seconds as a fallback
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                }, 10000);
+            });
+        });
+    });
+</script>
+{% endblock %}
