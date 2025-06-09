@@ -308,9 +308,7 @@
 {% block scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
 <script>
-    // Add some interactive effects
     document.addEventListener('DOMContentLoaded', function() {
-        // Add click effect to provider cards
         const providerCards = document.querySelectorAll('.provider-card');
         providerCards.forEach(card => {
             card.addEventListener('mouseenter', function() {
@@ -322,11 +320,6 @@
             });
         });
         
-        // Auto-refresh token status every 5 minutes
-        setInterval(function() {
-            // You can add AJAX call here to check token status
-            console.log('Checking token status...');
-        }, 300000);
     });
 </script>
 {% endblock %}
